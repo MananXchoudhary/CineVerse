@@ -1,30 +1,3 @@
-# ============================================================
-#  ci.yml — GitHub Actions CI Pipeline
-#  Day 11: CI/CD & Cloud Deployment
-# ============================================================
-#
-#  WHAT IS THIS FILE?
-#  A GitHub Actions workflow that automatically runs every time
-#  code is pushed to the "main" branch.
-#
-#  CI Flow:
-#  Developer Push → GitHub Detects → Runner VM Starts →
-#  Checkout Code → Setup Java → Build → Run Tests → Result
-#
-#  Academic Insight:
-#  CI catches bugs EARLY — before they reach production.
-#  "Fail fast" is the core principle: detect issues immediately.
-#
-#  Step-by-step Execution:
-#  1. Trigger  — code pushed to branch "main"
-#  2. Runner   — GitHub creates a fresh Ubuntu VM
-#  3. Checkout — Downloads repository code
-#  4. Java     — Installs Java 17 (Temurin/Eclipse)
-#  5. Build    — Compiles entire project (mvn clean package)
-#  6. Test     — Runs unit tests (JUnit + Mockito)
-#  If any test FAILS → pipeline STOPS → developer gets notified
-# ============================================================
-
 name: CI Pipeline
 
 # ── Trigger ──────────────────────────────────────────────────
