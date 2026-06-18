@@ -1,0 +1,29 @@
+# ============================================================
+#  .dockerignore — Cineverse Backend
+#  Day 10: Docker & Containerization
+# ============================================================
+#  Excludes unnecessary files from the Docker build context.
+#  Smaller build context = faster image builds.
+#
+#  NOTE: pom.xml must NOT be excluded — Docker needs it to build!
+# ============================================================
+
+# Maven build output (will be rebuilt inside container)
+target/
+
+# IDE config files
+.idea/
+*.iml
+.vscode/
+*.class
+
+# Git history
+.git/
+.gitignore
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test reports only (NOT pom.xml — that is required!)
+surefire-reports/

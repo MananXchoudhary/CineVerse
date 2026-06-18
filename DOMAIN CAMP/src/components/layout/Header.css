@@ -1,0 +1,148 @@
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  transition: all var(--transition-normal);
+}
+
+.site-header.scrolled {
+  height: 70px;
+  background: rgba(252, 248, 242, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(196, 18, 48, 0.08);
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.logo-icon {
+  color: var(--primary);
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 8px var(--primary-glow));
+}
+
+.logo-text {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+  background: rgba(196, 18, 48, 0.06);
+  border-color: rgba(196, 18, 48, 0.12);
+}
+
+.nav-link.active {
+  color: var(--primary);
+  background: rgba(196, 18, 48, 0.08);
+  border: 1.5px solid rgba(196, 18, 48, 0.2);
+  font-weight: 700;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-profile-nav {
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 5px 14px 5px 8px;
+}
+
+.nav-role-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.06em;
+}
+
+.nav-role-badge.user {
+  background: rgba(196, 18, 48, 0.1);
+  color: var(--primary);
+  border: 1px solid rgba(196, 18, 48, 0.25);
+}
+
+.nav-role-badge.theatre-owner {
+  background: rgba(212, 175, 55, 0.15);
+  color: #8A6500;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.nav-role-badge.admin {
+  background: #C41230;
+  color: #fff;
+  border: 1px solid #A00F26;
+}
+
+.nav-username {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.nav-logout-btn {
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.nav-logout-btn:hover {
+  background: rgba(196, 18, 48, 0.1);
+  color: var(--primary);
+}
+
+@media (max-width: 768px) {
+  .nav-links span { display: none; }
+  .nav-links { gap: 4px; }
+  .nav-username { display: none; }
+}

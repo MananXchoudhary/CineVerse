@@ -1,0 +1,64 @@
+# ============================================================
+#  .gitignore — Git Ignore Rules
+#  Day 11: CI/CD & Cloud Deployment
+# ============================================================
+#
+#  Academic Insight: Security in CI/CD
+#  NEVER commit secrets, keys, or credentials to Git.
+#  GitHub scans public repos for leaked credentials!
+#  This .gitignore prevents accidental secret exposure.
+# ============================================================
+
+# ── Environment Files (secrets) ─────────────────────────────
+.env
+.env.prod
+.env.local
+.env.development
+.env.staging
+# Keep only examples (safe to commit)
+!.env.example
+!.env.prod.example
+
+# ── SSL Private Keys (NEVER commit) ─────────────────────────
+docker/ssl/*.key
+docker/ssl/*.pem
+*.key
+*.pem
+*.p12
+*.jks
+
+# ── Maven Build Output ───────────────────────────────────────
+cineverse-backend/target/
+*.class
+*.jar
+*.war
+
+# ── Node.js ─────────────────────────────────────────────────
+DOMAIN CAMP/node_modules/
+DOMAIN CAMP/dist/
+DOMAIN CAMP/.vite/
+node_modules/
+
+# ── IDE ─────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+
+# ── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+
+# ── Test Coverage ────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Docker ───────────────────────────────────────────────────
+# (docker-compose files are safe to commit — no secrets)

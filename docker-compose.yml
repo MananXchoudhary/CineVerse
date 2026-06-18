@@ -1,0 +1,208 @@
+# ============================================================
+#  docker-compose.yml — Cineverse Full System Orchestration
+#  Day 10: Docker & Containerization
+# ============================================================
+#
+#  Academic Insight: Docker Compose
+#  Runs the ENTIRE Cineverse system with a single command:
+#    docker-compose up
+#
+#  Components running together:
+#  ┌──────────────────────────────────────────────────────────┐
+#  │  1. frontend        → React App (Nginx, port 3000)       │
+#  │  2. booking-service → Spring Boot API (port 8080)        │
+#  │  3. postgres        → PostgreSQL DB (port 5432)          │
+#  │  4. redis           → Redis Cache (port 6379)            │
+#  │  5. rabbitmq        → RabbitMQ Broker (port 5672/15672)  │
+#  │  6. mongodb         → MongoDB (port 27017)               │
+#  └──────────────────────────────────────────────────────────┘
+#
+#  Networking Insight:
+#  All services share the "cineverse-network" bridge network.
+#  Services communicate using their SERVICE NAME as hostname:
+#    booking-service → postgres    (NOT localhost:5432)
+#    booking-service → redis       (NOT localhost:6379)
+#    booking-service → rabbitmq    (NOT localhost:5672)
+#    frontend nginx  → booking-service (via /api/ proxy)
+#
+#  Environment Variables:
+#  Loaded from .env file automatically by Docker Compose.
+# ============================================================
+
+services:
+
+  # ──────────────────────────────────────────────────────────
+  # SERVICE 1: Frontend — React App served by Nginx
+  # ──────────────────────────────────────────────────────────
+  frontend:
+    # build: tells Docker Compose WHERE the Dockerfile is
+    build:
+      context: ./DOMAIN CAMP
+      dockerfile: Dockerfile
+    container_name: cineverse-frontend
+    # ports: HOST_PORT:CONTAINER_PORT
+    # User visits http://localhost:3000 → Nginx inside container (port 80)
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    # depends_on: Waits for booking-service to start first
+    depends_on:
+      - booking-service
+    # networks: Join the shared internal network
+    networks:
+      - cineverse-network
+    # restart: Restart if container crashes
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────────────────
+  # SERVICE 2: Booking Service — Spring Boot REST API
+  # ──────────────────────────────────────────────────────────
+  booking-service:
+    build:
+      context: ./cineverse-backend
+      dockerfile: Dockerfile
+    container_name: cineverse-booking-service
+    ports:
+      - "${BOOKING_SERVICE_PORT:-8080}:8080"
+    # environment: Inject env variables into the container
+    # These override application.properties defaults
+    # "postgres" below = service name → Docker resolves to container IP
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-create-drop}
+      REDIS_HOST: redis
+      RABBITMQ_HOST: rabbitmq
+    # depends_on: Spring Boot needs PostgreSQL to be ready first
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - cineverse-network
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────────────────
+  # SERVICE 3: PostgreSQL — Relational Database
+  # Used by: BookingRepository (JPA/Hibernate)
+  # Academic Insight: Stores Booking entities with seat data
+  # ──────────────────────────────────────────────────────────
+  postgres:
+    # image: Pull pre-built PostgreSQL 15 image from Docker Hub
+    image: postgres:15-alpine
+    container_name: cineverse-postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    # volumes: Persist data even when container stops/restarts
+    # Named volume "postgres_data" → data survives docker-compose down
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    # healthcheck: Ensures postgres is actually ready before Spring Boot starts
+    # Without this, Spring Boot might try to connect before PostgreSQL is ready
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cineverse-network
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────────────────
+  # SERVICE 4: Redis — In-Memory Cache
+  # Used by: Seat locking (Day 7), Movie cache (Day 7)
+  # Academic Insight: Prevents double-booking via SET NX
+  # ──────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: cineverse-redis
+    ports:
+      - "${REDIS_PORT_HOST:-6379}:6379"
+    # Redis persistence: AOF (Append Only File) mode
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - cineverse-network
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────────────────
+  # SERVICE 5: RabbitMQ — Message Broker
+  # Used by: Booking event publishing (Day 8)
+  # Management UI: http://localhost:15672 (guest/guest)
+  # Academic Insight: Async notification after booking (DLQ, retry)
+  # ──────────────────────────────────────────────────────────
+  rabbitmq:
+    # rabbitmq:3-management = includes the web management UI
+    image: rabbitmq:3-management-alpine
+    container_name: cineverse-rabbitmq
+    ports:
+      # AMQP protocol port (used by booking-service)
+      - "${RABBITMQ_PORT:-5672}:5672"
+      # Management UI port (browser dashboard)
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-cineverse}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cineverse_mq_pass}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cineverse-network
+    restart: unless-stopped
+
+  # ──────────────────────────────────────────────────────────
+  # SERVICE 6: MongoDB — Document Database
+  # Used by: Movie catalog (flexible schema for movie metadata)
+  # Academic Insight: NoSQL for unstructured/flexible data
+  # ──────────────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7-jammy
+    container_name: cineverse-mongodb
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - cineverse-network
+    restart: unless-stopped
+
+
+# ── Named Volumes ──────────────────────────────────────────────
+# Volumes persist data even when containers stop/restart.
+# docker-compose down           → data preserved
+# docker-compose down -v        → data deleted (fresh start)
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  mongo_data:
+    driver: local
+
+
+# ── Networks ───────────────────────────────────────────────────
+# All services share this bridge network.
+# They communicate using service names as hostnames (internal DNS).
+# Example: booking-service pings "postgres" → resolves to postgres container IP
+networks:
+  cineverse-network:
+    driver: bridge

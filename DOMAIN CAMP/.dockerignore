@@ -1,0 +1,37 @@
+# ============================================================
+#  .dockerignore — Cineverse Frontend
+#  Day 10: Docker & Containerization
+# ============================================================
+#  Prevents large/unnecessary files from being sent to Docker daemon.
+#  node_modules is the most important exclusion (~300MB saved).
+# ============================================================
+
+# Dependencies (reinstalled inside container via npm install)
+node_modules/
+
+# Build output (rebuilt inside container via npm run build)
+dist/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Environment files (never send secrets to Docker context)
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*

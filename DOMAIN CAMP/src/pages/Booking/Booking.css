@@ -1,0 +1,1128 @@
+/* ============================================================
+   Booking.css — Day 7: Redis Caching & Seat Locking Styles
+   ============================================================ */
+
+.booking-page-container {
+  padding-top: 24px;
+  padding-bottom: 60px;
+}
+
+.back-link {
+  display: inline-flex;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  justify-content: flex-start;
+  transition: all var(--transition-fast);
+}
+
+.back-link:hover {
+  color: var(--primary);
+  transform: translateX(-2px);
+}
+
+/* ── Cache Status Banner ──────────────────────────────────── */
+.cache-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  animation: slideDown 0.4s ease;
+}
+
+.cache-status-banner.hit {
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.08), rgba(22, 163, 74, 0.04));
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  color: #166534;
+}
+
+.cache-status-banner.miss {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.08), rgba(234, 88, 12, 0.04));
+  border: 1px solid rgba(234, 88, 12, 0.25);
+  color: #9a3412;
+}
+
+.cache-status-banner strong {
+  font-weight: 700;
+}
+
+.cache-badge {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.06em;
+}
+
+.hit-badge {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.3);
+}
+
+.miss-badge {
+  background: rgba(234, 88, 12, 0.12);
+  color: #c2410c;
+  border: 1px solid rgba(234, 88, 12, 0.3);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Booking Main Grid ────────────────────────────────────── */
+.booking-main-grid {
+  gap: 30px;
+  align-items: start;
+}
+
+/* ── Seat Layout Panel ───────────────────────────────────── */
+.seat-layout-section {
+  padding: 30px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 252, 248, 0.9);
+  border: 1px solid rgba(196, 18, 48, 0.1);
+  box-shadow: var(--shadow-sm);
+}
+
+.screen-indicator {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.screen-arc {
+  height: 10px;
+  width: 100%;
+  border-radius: 50% / 100% 100% 0 0;
+  background: var(--gradient-brand);
+  box-shadow: 0 -6px 18px rgba(196, 18, 48, 0.25);
+  margin-bottom: 10px;
+}
+
+.screen-indicator span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.seat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.seat-row {
+  justify-content: space-between;
+  width: 100%;
+  gap: 12px;
+}
+
+.row-letter {
+  width: 18px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.seats-container {
+  gap: 5px;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+/* ── Seat Button Base ────────────────────────────────────── */
+.seat-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  position: relative;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Seat Categories */
+.seat-btn.standard {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(180, 120, 100, 0.22);
+}
+.seat-btn.standard:hover {
+  border-color: rgba(196, 18, 48, 0.4);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 2px 6px rgba(196, 18, 48, 0.1);
+}
+
+.seat-btn.deluxe {
+  background: rgba(196, 18, 48, 0.06);
+  border: 1px solid rgba(196, 18, 48, 0.22);
+}
+.seat-btn.deluxe:hover {
+  border-color: var(--primary);
+  background: rgba(196, 18, 48, 0.12);
+}
+
+.seat-btn.vip {
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+.seat-btn.vip:hover {
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.18);
+}
+
+/* Selected */
+.seat-btn.selected {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(196, 18, 48, 0.45) !important;
+}
+
+/* Reserved (permanently booked) */
+.seat-btn.reserved {
+  background: rgba(0,0,0,0.04) !important;
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  color: var(--text-muted) !important;
+  cursor: not-allowed !important;
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+/* ── Locked Seat (Redis TTL Lock by another user) ─────────── */
+.seat-btn.locked {
+  background: rgba(234, 88, 12, 0.1) !important;
+  border: 1.5px solid rgba(234, 88, 12, 0.45) !important;
+  color: #c2410c !important;
+  cursor: not-allowed !important;
+  animation: pulseLock 2s ease-in-out infinite;
+}
+
+@keyframes pulseLock {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 88, 12, 0); }
+  50%       { box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.18); }
+}
+
+/* ── Seat TTL Chip (on selected seats) ───────────────────── */
+.seat-ttl-chip {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.52rem;
+  font-weight: 800;
+  background: var(--primary);
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+  z-index: 2;
+  letter-spacing: 0;
+}
+
+/* ── Seat Legend ─────────────────────────────────────────── */
+.seat-legend {
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  gap: 7px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.legend-box {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+}
+
+.legend-box.available {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(180, 120, 100, 0.25);
+}
+
+.legend-box.selected {
+  background: var(--primary);
+  box-shadow: 0 1px 4px rgba(196, 18, 48, 0.4);
+}
+
+.legend-box.locked-legend {
+  background: rgba(234, 88, 12, 0.1);
+  border: 1.5px solid rgba(234, 88, 12, 0.45);
+}
+
+.legend-box.reserved {
+  background: rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.08);
+  opacity: 0.4;
+}
+
+.pricing-info-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.price-legend-pill {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.price-legend-pill.standard {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(180, 120, 100, 0.22);
+  color: var(--text-secondary);
+}
+
+.price-legend-pill.deluxe {
+  background: rgba(196, 18, 48, 0.07);
+  border: 1px solid rgba(196, 18, 48, 0.18);
+  color: var(--primary);
+}
+
+.price-legend-pill.vip {
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: #8A6500;
+}
+
+/* ── Right Panel ─────────────────────────────────────────── */
+.booking-details-section {
+  flex-direction: column;
+  gap: 18px;
+}
+
+.selected-movie-info {
+  padding: 18px;
+  border-radius: var(--radius-md);
+  gap: 16px;
+  align-items: center;
+  background: rgba(255, 252, 248, 0.9);
+  border: 1px solid rgba(196, 18, 48, 0.1);
+  box-shadow: var(--shadow-sm);
+}
+
+.mini-poster {
+  width: 60px;
+  height: 84px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(196, 18, 48, 0.15);
+}
+
+.mini-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-details h3 { font-size: 1.1rem; margin-bottom: 4px; }
+.mini-details .runtime {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  justify-content: flex-start;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.mini-details .genres-list {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.selection-group {
+  padding: 18px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 252, 248, 0.9);
+  border: 1px solid rgba(196, 18, 48, 0.1);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.selection-pills { gap: 8px; flex-wrap: wrap; }
+
+.pill-btn {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1.5px solid rgba(196, 18, 48, 0.15);
+  color: var(--text-secondary);
+  padding: 7px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pill-btn:hover {
+  background: #fff;
+  color: var(--primary);
+  border-color: rgba(196, 18, 48, 0.35);
+}
+
+.pill-btn.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(196, 18, 48, 0.35);
+}
+
+/* ── Seat Lock Info Box ───────────────────────────────────── */
+.lock-info-box {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 251, 235, 0.9);
+  border: 1px solid rgba(234, 88, 12, 0.2);
+  box-shadow: var(--shadow-sm);
+  animation: slideDown 0.3s ease;
+}
+
+.lock-info-header {
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #c2410c;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.lock-seats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.lock-seat-row {
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  background: rgba(234, 88, 12, 0.04);
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.lock-seat-name {
+  font-weight: 800;
+  color: var(--text-primary);
+  min-width: 28px;
+}
+
+.lock-seat-key {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── TTL Badge ───────────────────────────────────────────── */
+.ttl-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  color: #15803d;
+  white-space: nowrap;
+}
+
+.ttl-badge.ttl-urgent {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #b91c1c;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+.lock-info-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ── Booking Summary ─────────────────────────────────────── */
+.booking-summary-box {
+  padding: 22px;
+  border-radius: var(--radius-md);
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(255, 252, 248, 0.9);
+  border: 1px solid rgba(196, 18, 48, 0.12);
+  box-shadow: var(--shadow-sm);
+}
+
+.booking-summary-box h3 {
+  font-size: 1.1rem;
+  border-bottom: 1px solid rgba(196, 18, 48, 0.1);
+  padding-bottom: 10px;
+}
+
+.summary-rows { display: flex; flex-direction: column; gap: 10px; }
+
+.summary-row {
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.summary-row span  { color: var(--text-secondary); }
+.summary-row .val  { color: var(--text-primary); font-weight: 600; }
+
+.summary-row.total-row {
+  border-top: 1px solid rgba(196, 18, 48, 0.1);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.summary-row.total-row span {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.summary-row.total-row .val.total {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.confirm-btn {
+  width: 100%;
+  padding: 13px;
+  font-size: 1rem;
+  margin-top: 6px;
+  border-radius: var(--radius-md);
+}
+
+/* ── Redis Insights Panel ────────────────────────────────── */
+.redis-panel-wrapper {
+  margin-top: 36px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.redis-panel-toggle {
+  width: 100%;
+  padding: 14px 20px;
+  background: rgba(99, 102, 241, 0.05);
+  border: none;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+  cursor: pointer;
+  justify-content: flex-start;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #4338ca;
+  transition: background var(--transition-fast);
+}
+
+.redis-panel-toggle:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.redis-key-count {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4338ca;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+/* Terminal-style dark panel */
+.redis-panel {
+  background: #0f0f23;
+  color: #e2e8f0;
+  font-family: 'Courier New', Courier, monospace;
+  animation: slideDown 0.3s ease;
+}
+
+.redis-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+}
+
+.redis-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5f57;
+  box-shadow: 14px 0 0 #febc2e, 28px 0 0 #28c840;
+}
+
+.redis-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-left: 20px;
+}
+
+.redis-refresh-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: #64748b;
+  transition: all var(--transition-fast);
+}
+
+.redis-refresh-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: #94a3b8;
+}
+
+.redis-panel-body {
+  padding: 16px 18px;
+  min-height: 80px;
+  overflow-x: auto;
+}
+
+.redis-empty {
+  font-size: 0.78rem;
+  color: #475569;
+  padding: 16px 0;
+  font-style: italic;
+}
+
+.redis-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.redis-table th {
+  text-align: left;
+  padding: 6px 12px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #475569;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  text-transform: uppercase;
+}
+
+.redis-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+
+.redis-table tr:last-child td {
+  border-bottom: none;
+}
+
+.redis-table tr.row-seat td { background: rgba(234, 88, 12, 0.04); }
+.redis-table tr.row-movie td { background: rgba(22, 163, 74, 0.04); }
+.redis-table tr:hover td { background: rgba(255,255,255,0.04) !important; }
+
+.redis-key {
+  color: #7dd3fc;
+  font-weight: 700;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.redis-value {
+  color: #a3e635;
+  font-size: 0.7rem;
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.redis-type-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.type-lock {
+  background: rgba(234, 88, 12, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(234, 88, 12, 0.3);
+}
+
+.type-cache {
+  background: rgba(22, 163, 74, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(22, 163, 74, 0.3);
+}
+
+.redis-panel-footer {
+  padding: 12px 18px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+}
+
+.redis-concept-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.concept-pill {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  font-family: inherit;
+}
+
+/* ── Success / Ticket ─────────────────────────────────────── */
+.booking-success-container {
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+.ticket-card {
+  width: 100%;
+  max-width: 500px;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 252, 248, 0.95);
+  border: 1px solid rgba(196, 18, 48, 0.12);
+  box-shadow: 0 20px 50px rgba(100, 40, 40, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.ticket-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--gradient-brand);
+}
+
+.success-icon {
+  width: 70px;
+  height: 70px;
+  background: rgba(196, 18, 48, 0.08);
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  border-radius: 50%;
+  margin: 0 auto 20px auto;
+  box-shadow: 0 0 18px rgba(196, 18, 48, 0.2);
+}
+
+.ticket-card h2 { font-size: 1.8rem; margin-bottom: 8px; }
+.success-msg {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+.digital-ticket {
+  background: #fff;
+  border: 1px solid rgba(196, 18, 48, 0.12);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  text-align: left;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ticket-top {
+  padding: 18px 20px;
+  background: rgba(196, 18, 48, 0.03);
+  border-bottom: 1px dashed rgba(196, 18, 48, 0.12);
+}
+
+.ticket-top h3 { font-size: 1.2rem; margin-bottom: 3px; }
+.ticket-tagline { font-size: 0.75rem; color: var(--text-muted); }
+
+.ticket-divider {
+  position: relative;
+  height: 20px;
+  background: #fff;
+}
+
+.notch {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  border: 1px solid rgba(196, 18, 48, 0.12);
+}
+
+.notch.left  { left: -11px; }
+.notch.right { right: -11px; }
+
+.dash-line {
+  width: 100%;
+  border-bottom: 2px dashed rgba(196, 18, 48, 0.15);
+}
+
+.ticket-body { padding: 18px 20px; }
+
+.ticket-details {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.ticket-detail-item { display: flex; flex-direction: column; }
+
+.ticket-detail-item .lbl {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 3px;
+  font-weight: 600;
+}
+
+.ticket-detail-item .val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ticket-detail-item .val.code {
+  font-family: var(--font-mono);
+  color: var(--primary);
+  font-size: 0.85rem;
+}
+
+.ticket-footer {
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed rgba(196, 18, 48, 0.12);
+  padding-top: 14px;
+}
+
+.ticket-footer .lbl {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  display: block;
+  margin-bottom: 3px;
+  font-weight: 600;
+}
+
+.ticket-footer .val.total {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.barcode-wrapper { gap: 2px; height: 36px; }
+.barcode-line { background: var(--text-primary); height: 100%; }
+.w-1 { width: 1px; }
+.w-2 { width: 2px; }
+.w-3 { width: 3px; }
+.w-4 { width: 4px; }
+.w-5 { width: 5px; }
+
+.success-actions { gap: 12px; justify-content: center; }
+.success-actions button, .success-actions a { padding: 10px 22px; font-size: 0.9rem; }
+
+/* ── Loader ───────────────────────────────────────────────── */
+.loader-container { min-height: 200px; }
+.spinner-small {
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid rgba(196, 18, 48, 0.2);
+  border-left-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   Day 06: Theatre & Screen Selector Styles
+   ============================================================ */
+
+.theatre-screen-selector {
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 252, 248, 0.92);
+  border: 1px solid rgba(196, 18, 48, 0.12);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+  animation: slideDown 0.4s ease;
+}
+
+.tss-header {
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
+  justify-content: flex-start;
+  margin-bottom: 16px;
+}
+
+.tss-badge {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(196, 18, 48, 0.07);
+  color: var(--primary);
+  border: 1px solid rgba(196, 18, 48, 0.18);
+  letter-spacing: 0.04em;
+}
+
+/* Theatre cards */
+.tss-theatres {
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.theatre-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid rgba(196, 18, 48, 0.15);
+  background: #fff;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  min-width: 200px;
+  text-align: left;
+}
+
+.theatre-card:hover {
+  border-color: rgba(196, 18, 48, 0.4);
+  box-shadow: 0 4px 12px rgba(196, 18, 48, 0.08);
+}
+
+.theatre-card.active {
+  border-color: var(--primary);
+  background: rgba(196, 18, 48, 0.04);
+  box-shadow: 0 4px 14px rgba(196, 18, 48, 0.12);
+}
+
+.theatre-card.no-show {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.theatre-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.theatre-location {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  gap: 4px;
+}
+
+.no-show-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: rgba(0,0,0,0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+/* Screen pills */
+.tss-screens {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.screen-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1.5px solid rgba(196, 18, 48, 0.15);
+  background: rgba(255,255,255,0.8);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.screen-pill:hover {
+  border-color: rgba(196, 18, 48, 0.35);
+  color: var(--primary);
+  background: #fff;
+}
+
+.screen-pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(196, 18, 48, 0.3);
+}
+
+/* Screen type tags */
+.screen-type-tag {
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.screen-pill.active .screen-type-tag {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.type-premium   { background: rgba(212, 175, 55, 0.12); color: #8A6500; border: 1px solid rgba(212,175,55,0.25); }
+.type-standard  { background: rgba(100, 116, 139, 0.1); color: #475569; border: 1px solid rgba(100,116,139,0.2); }
+.type-imax      { background: rgba(99, 102, 241, 0.1);  color: #4338ca; border: 1px solid rgba(99,102,241,0.2); }
+.type-dolby     { background: rgba(14, 165, 233, 0.1);  color: #0369a1; border: 1px solid rgba(14,165,233,0.2); }
+.type-4dx       { background: rgba(168, 85, 247, 0.1);  color: #7c3aed; border: 1px solid rgba(168,85,247,0.2); }
+
+/* Screen capacity hint */
+.screen-info-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  gap: 6px;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+/* Disabled showtime pill */
+.pill-btn.disabled-pill {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-style: dashed;
+  font-style: italic;
+}
+
+/* ── Day 06: Booked Seat State ──────────────────────────── */
+.seat-btn.booked {
+  background: rgba(100, 116, 139, 0.08) !important;
+  border: 1px solid rgba(100, 116, 139, 0.18) !important;
+  color: var(--text-muted) !important;
+  cursor: not-allowed !important;
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.legend-box.booked-legend {
+  background: rgba(100, 116, 139, 0.1);
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  opacity: 0.6;
+}
+
+/* ── Day 06: FSM Status Badges (Dashboard) ──────────────── */
+.ticket-status-badge.status-confirmed {
+  background: rgba(22, 163, 74, 0.1);
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+.ticket-status-badge.status-initiated {
+  background: rgba(14, 165, 233, 0.1);
+  color: #0369a1;
+  border: 1px solid rgba(14, 165, 233, 0.25);
+}
+
+.ticket-status-badge.status-locked {
+  background: rgba(234, 88, 12, 0.1);
+  color: #c2410c;
+  border: 1px solid rgba(234, 88, 12, 0.25);
+}
+
+.ticket-status-badge.status-cancelled {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.ticket-status-badge.status-expired {
+  background: rgba(100, 116, 139, 0.1);
+  color: #475569;
+  border: 1px solid rgba(100, 116, 139, 0.25);
+}
+
+/* Theatre row in Dashboard booking history */
+.booking-theatre-row {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  margin-bottom: 4px;
+  font-style: italic;
+}
+

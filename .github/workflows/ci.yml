@@ -1,0 +1,137 @@
+# ============================================================
+#  ci.yml — GitHub Actions CI Pipeline
+#  Day 11: CI/CD & Cloud Deployment
+# ============================================================
+#
+#  WHAT IS THIS FILE?
+#  A GitHub Actions workflow that automatically runs every time
+#  code is pushed to the "main" branch.
+#
+#  CI Flow:
+#  Developer Push → GitHub Detects → Runner VM Starts →
+#  Checkout Code → Setup Java → Build → Run Tests → Result
+#
+#  Academic Insight:
+#  CI catches bugs EARLY — before they reach production.
+#  "Fail fast" is the core principle: detect issues immediately.
+#
+#  Step-by-step Execution:
+#  1. Trigger  — code pushed to branch "main"
+#  2. Runner   — GitHub creates a fresh Ubuntu VM
+#  3. Checkout — Downloads repository code
+#  4. Java     — Installs Java 17 (Temurin/Eclipse)
+#  5. Build    — Compiles entire project (mvn clean install)
+#  6. Test     — Runs all JUnit + Mockito tests
+#  If any test FAILS → pipeline STOPS → developer gets notified
+# ============================================================
+
+name: CI Pipeline
+
+# ── Trigger ──────────────────────────────────────────────────
+# When to run this pipeline:
+on:
+  push:
+    branches: [ "main" ]      # Run on every push to main
+  pull_request:
+    branches: [ "main" ]      # Also run on pull requests to main
+  workflow_dispatch:          # Allow manual trigger from GitHub UI
+
+# ── Jobs ─────────────────────────────────────────────────────
+# A pipeline has one or more "jobs". Each job runs on a VM.
+jobs:
+
+  # ── Job 1: Build and Test Backend (Spring Boot) ────────────
+  build-and-test-backend:
+    name: "Build & Test — Spring Boot Backend"
+    runs-on: ubuntu-latest    # Use latest Ubuntu VM (free on GitHub)
+
+    steps:
+      # Step 1: Checkout Code
+      # Downloads your repository into the runner VM
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Java 17
+      # Installs Java Development Kit on the runner
+      # 'temurin' = Eclipse Temurin (same as our Docker image)
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'      # Cache Maven deps → faster subsequent runs
+
+      # Step 3: Build Project
+      # mvn clean install: Compiles + packages + runs tests
+      # -B = batch mode (non-interactive, better for CI)
+      - name: Build Project
+        run: mvn clean install -B
+        working-directory: cineverse-backend
+
+      # Step 4: Run Tests Explicitly
+      # Runs all JUnit 5 tests (Unit + Integration + Controller + Repository)
+      # If ANY test fails → this step fails → pipeline stops
+      - name: Run Tests
+        run: mvn test -B
+        working-directory: cineverse-backend
+
+      # Step 5: Upload Test Reports as Artifacts
+      # Stores test results so you can view them in GitHub UI
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()          # Run even if tests fail (to see reports)
+        with:
+          name: backend-test-results
+          path: cineverse-backend/target/surefire-reports/
+
+  # ── Job 2: Build and Test Frontend (React/Vite) ────────────
+  build-and-test-frontend:
+    name: "Build & Test — React Frontend"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Setup Node.js 20 (required by Vite 8)
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'DOMAIN CAMP/package-lock.json'
+
+      # Install all dependencies
+      - name: Install Dependencies
+        run: npm install
+        working-directory: "DOMAIN CAMP"
+
+      # Run Vitest frontend tests (Jest-compatible)
+      - name: Run Frontend Tests
+        run: npm test
+        working-directory: "DOMAIN CAMP"
+
+      # Build the React app (Vite production build → dist/)
+      - name: Build Frontend
+        run: npm run build
+        working-directory: "DOMAIN CAMP"
+
+      # Upload built dist/ as artifact (used by CD pipeline)
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: "DOMAIN CAMP/dist/"
+
+  # ── Job 3: Docker Compose Validation ──────────────────────
+  validate-docker-compose:
+    name: "Validate Docker Compose"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Validate that docker-compose.yml is syntactically valid
+      - name: Validate docker-compose.yml
+        run: docker compose config

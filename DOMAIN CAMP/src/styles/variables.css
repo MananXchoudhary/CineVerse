@@ -1,0 +1,89 @@
+:root {
+  /* =========================================================
+   * CINEVERSE — Spain 2026 Away Jersey Theme
+   * Off-white + Crimson Red + Warm Gold
+   * Inspired by: Spain FIFA World Cup 2026 Away Kit
+   * ========================================================= */
+
+  /* Background Palette — Warm off-white / ivory */
+  --bg-darker:      #E8E0D5;
+  --bg-dark:        #F2EDE6;
+  --bg-card:        rgba(255, 252, 248, 0.85);
+  --bg-card-hover:  rgba(255, 255, 255, 0.98);
+  --bg-glass:       rgba(255, 252, 248, 0.75);
+
+  /* Borders — subtle warm grey */
+  --border-color:       rgba(180, 120, 100, 0.18);
+  --border-color-hover: rgba(196, 18, 48, 0.35);
+
+  /* ─── Brand Accents — Spain Crimson & Gold ─── */
+  --primary:        #C41230;           /* Spain jersey crimson */
+  --primary-hover:  #A00F26;           /* deeper crimson on hover */
+  --primary-glow:   rgba(196, 18, 48, 0.35);
+  --secondary:      #D4AF37;           /* warm Spanish gold */
+  --secondary-glow: rgba(212, 175, 55, 0.35);
+  --accent-gold:    #D4AF37;
+
+  /* Text Colors — dark charcoal on light bg */
+  --text-primary:   #1A0A0E;           /* near-black with red warmth */
+  --text-secondary: #5C3D45;           /* muted burgundy-grey */
+  --text-muted:     #9E7A82;           /* soft muted rose-grey */
+  --text-glow:      0 0 10px rgba(196, 18, 48, 0.1);
+
+  /* ─── Gradients ─── */
+  --gradient-brand:    linear-gradient(135deg, #C41230 0%, #8B0000 100%);
+  --gradient-text:     linear-gradient(90deg, #C41230 0%, #D4AF37 100%);
+  --gradient-overlay:  linear-gradient(to bottom, rgba(242, 237, 230, 0) 0%, rgba(242, 237, 230, 0.7) 50%, var(--bg-dark) 100%);
+  --gradient-hero:     linear-gradient(to right, var(--bg-darker) 30%, rgba(232, 224, 213, 0.8) 50%, rgba(232, 224, 213, 0) 100%);
+  --gradient-page:     linear-gradient(160deg, #F7F0E8 0%, #EDE5DC 40%, #F5EDE2 100%);
+
+  /* Typography */
+  --font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Shadows — warm instead of black */
+  --shadow-sm: 0 2px 8px rgba(100, 40, 40, 0.10);
+  --shadow-md: 0 8px 20px rgba(100, 40, 40, 0.14);
+  --shadow-lg: 0 16px 40px rgba(100, 40, 40, 0.20);
+  --shadow-neon: 0 0 20px rgba(196, 18, 48, 0.18);
+
+  /* Transitions */
+  --transition-fast:   0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Border Radii */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-full: 9999px;
+
+  /* Layout */
+  --container-width: 1400px;
+  --header-height:   80px;
+}
+
+/* ─── Glassmorphism — now warm frosted white ─── */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.glass-panel-interactive {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.glass-panel-interactive:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-color-hover);
+  box-shadow: var(--shadow-neon), var(--shadow-md);
+  transform: translateY(-4px);
+}
