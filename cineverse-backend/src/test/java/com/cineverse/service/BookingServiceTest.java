@@ -3,11 +3,13 @@ package com.cineverse.service;
 import com.cineverse.exception.SeatUnavailableException;
 import com.cineverse.model.Booking;
 import com.cineverse.repository.BookingRepository;
+import com.cineverse.service.BookingEventProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,8 +37,15 @@ class BookingServiceTest {
     @Mock
     private BookingRepository bookingRepository;
 
+    // Day 08: Mock BookingEventProducer so RabbitMQ is never called in tests
+    // Academic Insight: @Mock creates a "fake" object — publishBookingEvent()
+    // does nothing (returns null) instead of connecting to RabbitMQ
+    @Mock
+    private BookingEventProducer eventProducer;
+
     @InjectMocks
     private BookingService bookingService;
+
 
     @BeforeEach
     void setUp() {

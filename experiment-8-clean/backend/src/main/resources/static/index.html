@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Security JWT Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --error: #ef4444;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #000000 100%);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.5);
+            color: var(--text);
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+        }
+
+        button.secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: block;
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            display: block;
+        }
+
+        #dashboard {
+            display: none;
+        }
+
+        .token-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            word-break: break-all;
+            font-size: 12px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .response-display {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            min-height: 60px;
+        }
+
+        .credentials-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="login-container">
+        <h1>JWT Security Demo</h1>
+        <div id="login-alert" class="alert"></div>
+        
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="e.g. admin or user">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        
+        <button onclick="login()">Login & Generate Token</button>
+        <button class="secondary" onclick="testPublic()">Test Public Endpoint</button>
+
+        <div class="credentials-hint">
+            <strong>Demo Credentials:</strong><br>
+            Admin: <code>admin</code> / <code>admin123</code> (ROLE_ADMIN)<br>
+            User: <code>user</code> / <code>user123</code> (ROLE_USER)
+        </div>
+    </div>
+
+    <div class="container" id="dashboard">
+        <h1>Dashboard</h1>
+        <div id="dash-alert" class="alert"></div>
+        
+        <label>Your Active JWT Token:</label>
+        <div class="token-display" id="tokenDisplay"></div>
+
+        <div style="display:flex; gap: 10px; margin-bottom: 10px;">
+            <button onclick="testUserEndpoint()">Test User API (RBAC)</button>
+            <button onclick="testAdminEndpoint()" style="background:var(--error)">Test Admin API (RBAC)</button>
+        </div>
+
+        <label>API Response:</label>
+        <div class="response-display" id="responseDisplay">No request made yet.</div>
+
+        <button class="secondary" onclick="logout()">Logout / Clear Token</button>
+    </div>
+
+    <script>
+        let currentToken = null;
+
+        async function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const alert = document.getElementById('login-alert');
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                if (!res.ok) throw new Error('Invalid credentials');
+
+                const data = await res.json();
+                currentToken = data.token;
+                
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('tokenDisplay').innerText = currentToken.substring(0, 40) + "...";
+                showDashAlert('Successfully logged in! Token generated.', 'success');
+                document.getElementById('responseDisplay').innerText = "Logged in as: " + data.username + "\nRoles: " + data.roles.join(", ");
+
+            } catch (err) {
+                alert.className = 'alert error';
+                alert.innerText = err.message;
+            }
+        }
+
+        async function testPublic() {
+            const alert = document.getElementById('login-alert');
+            try {
+                const res = await fetch('/api/public/welcome');
+                const data = await res.json();
+                alert.className = 'alert success';
+                alert.innerText = JSON.stringify(data);
+            } catch(e) {
+                alert.className = 'alert error';
+                alert.innerText = 'Failed to fetch public api';
+            }
+        }
+
+        async function testUserEndpoint() {
+            await makeSecureRequest('/api/user/profile');
+        }
+
+        async function testAdminEndpoint() {
+            await makeSecureRequest('/api/admin/dashboard');
+        }
+
+        async function makeSecureRequest(url) {
+            const display = document.getElementById('responseDisplay');
+            display.innerText = "Loading...";
+            
+            try {
+                const res = await fetch(url, {
+                    headers: { 'Authorization': 'Bearer ' + currentToken }
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showDashAlert('Token validated! Access GRANTED.', 'success');
+                    display.innerText = JSON.stringify(data, null, 2);
+                } else {
+                    showDashAlert('Access DENIED. Role insufficient.', 'error');
+                    display.innerText = JSON.stringify(data, null, 2);
+                }
+            } catch (err) {
+                showDashAlert('Network error', 'error');
+                display.innerText = "";
+            }
+        }
+
+        function showDashAlert(msg, type) {
+            const alert = document.getElementById('dash-alert');
+            alert.className = 'alert ' + type;
+            alert.innerText = msg;
+        }
+
+        function logout() {
+            currentToken = null;
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-alert').className = 'alert';
+            document.getElementById('login-alert').innerText = '';
+        }
+    </script>
+</body>
+</html>
