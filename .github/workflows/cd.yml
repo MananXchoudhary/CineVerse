@@ -1,33 +1,3 @@
-# ============================================================
-#  cd.yml — GitHub Actions CD Pipeline
-#  Day 11: CI/CD & Cloud Deployment
-# ============================================================
-#
-#  WHAT IS THIS FILE?
-#  Continuous Deployment pipeline that runs AFTER CI passes.
-#  Builds Docker images and deploys the application.
-#
-#  CD Flow:
-#  CI Passes → Build Docker Images → Push to Registry →
-#  Deploy to Cloud Server → Monitor
-#
-#  Academic Insight:
-#  CD eliminates manual deployment. Every successful CI run
-#  automatically produces a deployable artifact.
-#
-#  Step-by-step Execution:
-#  1. Trigger  — runs only AFTER "CI Pipeline" completes successfully
-#  2. Checkout — Downloads repository code
-#  3. Build    — Creates Docker images for backend + frontend
-#  4. Push     — Uploads images to registry (requires DOCKERHUB_TOKEN secret)
-#  5. Deploy   — Server pulls latest image and restarts containers
-#
-#  To enable Docker push: Add these secrets in GitHub:
-#  Settings → Secrets and Variables → Actions → New repository secret
-#    - DOCKERHUB_USERNAME: your DockerHub username
-#    - DOCKERHUB_TOKEN: DockerHub access token
-# ============================================================
-
 name: CD Pipeline
 
 # ── Trigger ──────────────────────────────────────────────────
